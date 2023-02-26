@@ -59,3 +59,6 @@ setDates()
 
 endDate.addEventListener('change', setDates)
 
+
+const btnSubmit = document.querySelector('#submit')
+console.log(btnSubmit)
