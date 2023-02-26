@@ -24,3 +24,38 @@ getCurrency('12-12-2021').then(console.log)
 //     getCurrency('12-12-2021').then(console.log)
 //
 // })
+
+let today = new Date()
+let dd = today.getDate()
+let mm = today.getMonth() + 1
+let yyyy = today.getFullYear()
+
+if (dd < 10) {
+    dd = '0' + dd
+}
+
+if (mm < 10) {
+    mm = '0' + mm
+}
+today = yyyy + '-' + mm + '-' + dd
+
+const startDate = document.querySelector('#startDate')
+const endDate = document.querySelector('#endDate')
+
+endDate.setAttribute('max', today)
+endDate.value = today
+
+function setDates(e){
+    startDate.setAttribute('max', endDate.value)
+
+    if(startDate.value > endDate.value){
+    startDate.value = endDate.value
+    }
+    if(startDate.value === ''){
+        startDate.value = endDate.value
+    }
+}
+setDates()
+
+endDate.addEventListener('change', setDates)
+
