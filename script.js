@@ -66,19 +66,39 @@ btnSubmit.addEventListener('click', e => {
     const start = Date.parse(startDate.value)
     const end = Date.parse(endDate.value)
     const datesArray = []
-    const result = {}
+    let result = []
 
     for (let i = start; i <= end; i = i + 24 * 60 * 60 * 1000) {
         datesArray.push(new Date(i).toISOString().slice(0, 10))
     }
 
     let requests = datesArray.map(date => fetch(`https://www.nbrb.by/api/exrates/rates/usd?parammode=2&ondate=${date}`));
+    (async function () {
+        result = await Promise.all(requests)
+            .then(responses => responses)
+            .then(async responses => await Promise.all(responses.map(r => r.json())))
+            .then(currencies => {
+                currencies.forEach(currency => {
+                    const objKey = currency.Date.slice(0, 10)
+                    const value = currency.Cur_OfficialRate
+                    result.push({[objKey]: value})
+                })
+            })
+            .then(
+                console.log(result)
+            )
+    })()
+    // result = Object.entries(result)
+    // console.log(result)
+    // result.forEach((item, index) => {
+    //     const weekDay = new Date(item[0])
+    //     console.log(item, index)
+    //     // console.log(item, weekDay.getDay(), weekDay.getDay() === 6, weekDay.getDay() === 0, result.indexOf(item) !== 0)
+    //     if ((weekDay.getDay() === 6 || weekDay.getDay() === 0) && result.indexOf(item) !== 0) {
+    //         result.splice(index, 1)
+    //     }
+    // })
+    // result = result.sort((a, b) => a[1] - b[1])
 
-    Promise.all(requests)
-        .then(responses => responses)
-        .then(responses => Promise.all(responses.map(r => r.json())))
-        .then(currencies => currencies.forEach(currency => result[currency.Date.slice(0, 10)] = currency.Cur_OfficialRate));
 
-    console.log(result)
 })
-
