@@ -6,6 +6,12 @@
     box-sizing: border-box;
 }
 
+body{
+    background: linear-gradient(90deg, #cfecd0, #ffc5ca);
+    width: 100vh;
+    height: 100vh;
+}
+
 input[type="date"] {
     background-color: #1a73e8;
     padding: 15px;
@@ -25,7 +31,7 @@ input[type="date"] {
     border-radius: 3px;
 }
 
-.dates {
+.container {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -57,12 +63,6 @@ button {
     z-index: 1;
 }
 
-.sumbitBtnContainer {
-    position: absolute;
-    top: 54%;
-    left: 50%;
-}
-
 button:hover {
     box-shadow: 0 1px 2px 0 rgb(26 115 232 / 45%), 0 1px 3px 1px rgb(26 115 232 / 30%);
     background-color: #297be6;
@@ -78,10 +78,9 @@ button:focus-visible {
 }
 
 .resultContainer {
-    position: absolute;
-    top: 60%;
-    left: 50%;
-    transform: translate(-7.5%);
+    height: 80px;
+    width: 170px;
+    vertical-align: top;
     padding: 0 15px;
     margin: 0 15px 15px 0;
     outline: none;
@@ -90,6 +89,6 @@ button:focus-visible {
     overflow: hidden;
     font-family: "Roboto Mono", monospace;
     color: #ffffff;
-    font-size: 16px;
+    font-size: 13px;
 }
 

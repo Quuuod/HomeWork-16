@@ -11,6 +11,7 @@
 </head>
 
 <body>
+    <div class="container">
     <div class="dates">
         <input type="date" name="" id="startDate" min="2000-01-01">
         <input type="date" name="" id="endDate" min="2000-01-01">
@@ -19,9 +20,14 @@
         <button id="submit">Вывод</button>
     </div>
     <div class="resultContainer">
-        <div class="minContainer"><span>Минимальный курс:</span><span>232323</span></div>
-        <div class="maxContainer"><span>Максимальный курс:</span><span>232323</span></div>
+        <div class="minContainer"><p>min:</p>
+            <p id ="min"></p>
+        </div>
+        <div class="maxContainer"><p>max:</p>
+            <p id="max"></p>
+        </div>
     </div>
+</div>
 </body>
 
 </html>

@@ -25,6 +25,11 @@
 //
 // })
 
+const min = document.querySelector('#min')
+const max = document.querySelector('#max')
+
+const btnSubmit = document.querySelector('#submit')
+
 let today = new Date()
 let dd = today.getDate()
 let mm = today.getMonth() + 1
@@ -45,22 +50,37 @@ const endDate = document.querySelector('#endDate')
 endDate.setAttribute('max', today)
 endDate.value = today
 
-function setDates(e) {
+function setEndDate() {
     startDate.setAttribute('max', endDate.value)
 
-    if (startDate.value > endDate.value) {
-        startDate.value = endDate.value
-    }
-    if (startDate.value === '') {
-        startDate.value = endDate.value
-    }
+    if (startDate.value > endDate.value) startDate.value = endDate.value
+
+    if (endDate.value > today) endDate.value = today
 }
-setDates()
 
-endDate.addEventListener('change', setDates)
+function setStartDate() {
+    if (startDate.value === '') startDate.value = endDate.value
 
+    if (startDate.value > today) startDate.value = today
+}
 
-const btnSubmit = document.querySelector('#submit')
+setEndDate()
+setStartDate()
+
+endDate.addEventListener('change', setEndDate)
+endDate.addEventListener('blur', () => {
+    if (endDate.value < endDate.getAttribute('min')) {
+        endDate.value = endDate.getAttribute('min')
+    }
+})
+
+startDate.addEventListener('change', setStartDate)
+startDate.addEventListener('blur', () => {
+    if (startDate.value < startDate.getAttribute('min')) {
+        startDate.value = startDate.getAttribute('min')
+    }
+})
+
 
 btnSubmit.addEventListener('click', e => {
     const start = Date.parse(startDate.value)
@@ -68,37 +88,38 @@ btnSubmit.addEventListener('click', e => {
     const datesArray = []
     let result = []
 
-    for (let i = start; i <= end; i = i + 24 * 60 * 60 * 1000) {
+    for (let i = start; i <= end; i = i + 24 * 60 * 60 * 1000) { // шаг цикла 1 день в милисекундах
         datesArray.push(new Date(i).toISOString().slice(0, 10))
     }
 
-    let requests = datesArray.map(date => fetch(`https://www.nbrb.by/api/exrates/rates/usd?parammode=2&ondate=${date}`));
+    const requests = datesArray.map(date => fetch(`https://www.nbrb.by/api/exrates/rates/usd?parammode=2&ondate=${date}`));
+
     (async function () {
         result = await Promise.all(requests)
-            .then(responses => responses)
-            .then(async responses => await Promise.all(responses.map(r => r.json())))
+            .then(responses => Promise.all(responses.map(r => r.json())))
             .then(currencies => {
                 currencies.forEach(currency => {
-                    const objKey = currency.Date.slice(0, 10)
-                    const value = currency.Cur_OfficialRate
-                    result.push({[objKey]: value})
+                    result.push({
+                        [currency.Date.slice(0, 10)]: currency.Cur_OfficialRate
+                    })
                 })
+                result = Object.entries(result)
+                //удаление суббот и воскресений из массива(если они не первый элемент)
+                for (let i = 0; i < result.length; i++) {
+                    const weekDay = new Date(Object.keys(result[i][1]))
+                    if ((weekDay.getDay() === 6 || weekDay.getDay() === 0) && result.indexOf(result[i]) !== 0) {
+                        result.splice(i, 1)
+                        i--
+                        //нужно из за того что при splice индексы элементов сдвигаются и если удалённый элемент 
+                        //был например суббота с индексом 2 то следующий за ним элемент воскресенье получит индекс 2 
+                        //но массив пропустит его так как i уже равно 3 
+                    }
+                }
+
+                result = result.sort((a, b) => Object.values(a[1]) - Object.values(b[1]))
+                
+                min.innerText = `${Object.keys(result[0][1])} : ${Object.values(result[0][1])} `
+                max.innerText = `${Object.keys(result[result.length - 1][1])} : ${Object.values(result[result.length - 1][1])} `
             })
-            .then(
-                console.log(result)
-            )
     })()
-    // result = Object.entries(result)
-    // console.log(result)
-    // result.forEach((item, index) => {
-    //     const weekDay = new Date(item[0])
-    //     console.log(item, index)
-    //     // console.log(item, weekDay.getDay(), weekDay.getDay() === 6, weekDay.getDay() === 0, result.indexOf(item) !== 0)
-    //     if ((weekDay.getDay() === 6 || weekDay.getDay() === 0) && result.indexOf(item) !== 0) {
-    //         result.splice(index, 1)
-    //     }
-    // })
-    // result = result.sort((a, b) => a[1] - b[1])
-
-
 })
